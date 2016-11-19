@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/assets/bakery/black bread.png" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/assets/bakery/cereals (any).png" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/assets/bakery/corn flakes.png" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/assets/bakery/crackers.png" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/assets/bakery/flour.png" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/assets/bakery/pasta (boiled).png" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/assets/bakery/pasta (raw).png" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/assets/bakery/wheat bran.png" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/assets/bakery/white bread.png" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/assets/drinks/cola.png" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/assets/milk/cheesecake.png" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/assets/milk/cream.png" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/assets/milk/ice-cream.png" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/assets/milk/kefir.png" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/assets/milk/milk.png" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/res/drawable-hdpi/fon4.png" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/res/drawable-hdpi/fon5.png" charset="UTF-8" />
+  </component>
+</project>
