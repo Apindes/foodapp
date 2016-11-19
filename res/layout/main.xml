@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<TableLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:background="@drawable/fon5e"
+              android:id="@+id/mainLayout"
+              android:focusable="false"
+              android:focusableInTouchMode="true"
+        >
+    <TableRow
+            android:layout_width="66dp"
+            android:layout_height="wrap_content" android:baselineAligned="false" android:id="@+id/header"
+            android:orientation="horizontal" android:layout_weight="1" android:background="#ff000000">
+
+    </TableRow>
+    <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="380dp" android:layout_weight="1" android:baselineAligned="false"
+            >
+
+        <ScrollView
+                android:id="@+id/myview"
+                android:layout_width="wrap_content"
+                android:layout_height="375dp"
+                android:orientation="vertical"
+                android:layout_weight="2" android:textAlignment="textStart">
+
+            <GridLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp" android:id="@+id/grid"
+                    android:columnCount="1"
+                    android:layout_weight="1" android:background="@drawable/gradient">
+            </GridLayout>
+        </ScrollView>
+
+
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" android:focusableInTouchMode="false" android:id="@+id/rightPartLL">
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:id="@+id/upperRightblock"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    >
+                <AutoCompleteTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/autoCompleteTextView"
+                        android:hint="product..."
+                        android:fitsSystemWindows="true"
+                        android:textColor="#ffffffff" android:autoText="false" android:background="#bb262425"
+                        android:layout_weight="1"/>
+                <Button
+                        style="?android:attr/buttonStyleSmall"
+                        android:layout_width="match_parent"
+                        android:layout_height="35dp"
+                        android:text="Ok"
+                        android:id="@+id/okAutoBoxButton" android:layout_column="1" android:layout_gravity="top|bottom"
+                        android:layout_weight="2"/>
+            </LinearLayout>
+            <ExpandableListView
+
+                    android:layout_width="140dp"
+                    android:layout_height="match_parent"
+                    android:id="@+id/expandableListView" android:focusableInTouchMode="false"/>
+        </LinearLayout>
+
+    </TableRow>
+    <GridLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:background="#ffff8664" android:layout_weight="1"
+            >
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0.0"
+                android:id="@+id/finalResult" android:textSize="30sp" android:textStyle="bold|italic"
+                android:gravity="top" android:textColor="#fffdfff7"
+                android:layout_marginLeft="10dp" android:maxLines="1" android:maxWidth="70dp" android:maxLength="90"
+                android:layout_row="0" android:layout_column="0"
+                android:paddingRight="5dp"/>
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="carbs"
+                android:id="@+id/result_xeTV" android:layout_row="0" android:layout_column="1" android:textStyle="bold"
+                android:textColor="#ffffe9e7"/>
+        <Button
+                android:layout_width="30dp"
+                android:layout_height="20dp"
+                android:text="New Button"
+                android:id="@+id/button2" android:visibility="invisible" android:layout_row="0"
+                android:layout_column="2"/>
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="..."
+                android:id="@+id/kkalTV" android:textSize="30sp" android:paddingRight="5dp" android:layout_row="0"
+                android:layout_column="3"/>
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="kkal"
+                android:id="@+id/textView11" android:textColor="#ffffffff" android:layout_row="0"
+                android:layout_column="4"/>
+        <Button
+
+                android:layout_width="37dp"
+                android:layout_height="30dp"
+                android:id="@+id/clearButton" android:background="@drawable/basket" android:layout_row="0"
+                android:layout_column="6" android:layout_marginBottom="9dp"/>
+    </GridLayout>
+    <ListView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            >
+    </ListView>
+
+</TableLayout>
+
+

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DiabetApp</string>
+    <string name="weightTV_block_eng">weight</string>
+    <string name="XeTV_block_eng">carbs</string>
+    <string name="calloriesTV_block_eng">callories</string>
+
+    <string name="weightTV_block_rus">вес</string>
+    <string name="XeTV_block_rus">XE</string>
+    <string name="calloriesTV_block_rus">каллории</string>
+</resources>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/scrollView" android:fillViewport="false"
+        xmlns:android="http://schemas.android.com/apk/res/android" android:visibility="gone">
+        <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" android:background="#7effffff">
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:id="@+id/textView5" android:background="#ffd36c5f"/>
+            <ImageView
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:id="@+id/imageView2" android:layout_below="@+id/textView5"
+                    android:layout_alignParentRight="false" android:layout_alignWithParentIfMissing="false"
+                    android:layout_alignParentBottom="false" android:layout_alignParentLeft="false"
+                    android:layout_alignParentTop="false" android:layout_centerInParent="true"
+                    android:background="@drawable/fon5e" android:layout_marginTop="10dp"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Хлебные единицы при сахарном диабете. "
+                    android:id="@+id/textView7" android:layout_below="@+id/imageView2" android:textColor="#ff000000"
+                    android:textStyle="bold" android:gravity="center_horizontal"/>
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Хлебная единица (ХЕ) — важное понятие для людей, которые болеют диабетом.
+                    Это мера, которая используется для оценки количества углеводов в продуктах питания. Говорят, например,
+                     “плитка шоколада 100 г содержит 5 ХЕ”, т. е. 1 ХЕ — это 20 г шоколада.
+                     Или “мороженое пересчитывается в хлебные единицы из расчета 65 г — 1 ХЕ”."
+                    android:id="@+id/textView6" android:layout_below="@+id/textView7" android:layout_marginTop="22dp"
+                    android:textColor="#ffffffff" android:background="#ff747771" android:textSize="16dp"/>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                      android:textAppearance="?android:attr/textAppearanceLarge"
+                      android:text="Чтобы посчитать количество хлебных единиц совершенно точно,
+                       пришлось бы каждый раз взвешивать продукты перед едой. Но больные диабетом со временем обучаются делать это “на глаз”.
+                       Точность такой оценки считается достаточной, чтобы рассчитать дозировку инсулина.
+                       Тем не менее, иметь кухонные весы дома — очень удобно и полезно."
+                      android:id="@+id/textView8" android:layout_below="@+id/textView6" android:layout_marginTop="1dp"
+                      android:textColor="#ffffffff" android:background="#ff747771" android:textSize="16dp"/>
+        </RelativeLayout>
+    </ScrollView>

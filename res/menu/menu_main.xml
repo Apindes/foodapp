@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+            android:id="@+id/action_settings"
+            android:orderInCategory="100"
+            android:title="Language"
+            />
+    <item
+            android:id="@+id/action_eng"
+            android:orderInCategory="100"
+            android:title="English"
+            android:showAsAction="ifRoom"/>
+
+    <item
+            android:id="@+id/action_rus"
+            android:orderInCategory="100"
+            android:title="Russian"
+            android:showAsAction="ifRoom"/>
+</menu>

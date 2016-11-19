@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                 android:layout_width="match_parent"
+                 android:layout_height="45dp" android:background="#72000000" android:enabled="true"
+              android:orientation="horizontal">
+    <CheckedTextView android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:textSize="19sp"
+              android:layout_marginLeft="22dp" android:id="@+id/textItem" android:focusable="false"/>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Small Text"
+            android:id="@+id/hiddenCalloriesTV" android:visibility="invisible"/>
+
+</LinearLayout>
