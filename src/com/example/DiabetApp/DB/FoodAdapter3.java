@@ -30,6 +30,7 @@ public class FoodAdapter3 extends BaseExpandableListAdapter {
     private SparseBooleanArray foundedChildPositionsArray;
     public  boolean isFounded=false;
     Animation fadeIn = new AlphaAnimation(0, 1);
+    MainTwo mainClass = new MainTwo();
 
 
     public FoodAdapter3(Context context, ArrayList<Product> [] foodList, ExpandableListView listView){
@@ -128,7 +129,7 @@ public class FoodAdapter3 extends BaseExpandableListAdapter {
     }
 
     @Override
-    public View getChildView(int groupIndex, int childIndex, boolean isLastChild, View view, ViewGroup parent) {
+    public View getChildView(final int groupIndex, final int childIndex, boolean isLastChild, View view, ViewGroup parent) {
         if(view==null) {
             view = inflater.inflate(R.layout.simple_list_item_multiple_choice, parent, false);
         }
@@ -151,15 +152,43 @@ public class FoodAdapter3 extends BaseExpandableListAdapter {
         calloriesTV.setTag(calories);
 
 
-        int color_default  = Color.parseColor("#72000000");
-        int color_selected  = Color.parseColor("#72b3e473");
-
+        final int color_default  = Color.parseColor("#72000000");
+        final int color_selected  = Color.parseColor("#72b3e473");
+        if(!isFounded){
+            view.setBackgroundColor(color_default);
+        }
         if(foundedPositions.get(groupIndex)!=null){
 
             isFounded  = foundedPositions.get(groupIndex).get(childIndex);
             if(isFounded) {
-                view.setBackgroundColor(color_selected);
+                final View finalView = view;
 
+                new Thread(){
+                    @Override
+                    public void run() {
+                       finalView.post(new Runnable() {
+                           @Override
+                           public void run() {
+                               synchronized (MainTwo.class) {
+                                   MainTwo.hideKeyboard();
+                               }
+                               synchronized (finalView) {
+                                   try {
+//                                       sleep(1000);
+//                                       finalView.wait(500);
+                                       finalView.setBackgroundColor(color_selected);
+                                   } catch (Exception e) {
+                                       e.printStackTrace();
+                                   }
+                                   foundedPositions.get(groupIndex).put(childIndex, false);
+                               }
+                           }
+                       });
+                    }
+                }.start();
+
+//                view.setBackgroundColor(color_selected);
+                isFounded=false;
             }else{
                 isFounded=false;
             }
@@ -192,9 +221,7 @@ public class FoodAdapter3 extends BaseExpandableListAdapter {
 
         tv.setEnabled(!isChecked);
 
-        if(!isFounded){
-            view.setBackgroundColor(color_default);
-        }
+
 
         notifyDataSetChanged();
         return view;
@@ -210,10 +237,8 @@ public class FoodAdapter3 extends BaseExpandableListAdapter {
         return checkedPositions;
     }
 
-
-
     public void setClicked(int groupPosition,int childPosition){
-        foundedChildPositionsArray=null;
+
         checkedChildPositionsArray = checkedPositions.get(groupPosition);
         if(checkedChildPositionsArray==null) {
             checkedChildPositionsArray = new SparseBooleanArray();
@@ -231,6 +256,8 @@ public class FoodAdapter3 extends BaseExpandableListAdapter {
         return foundedPositions;
     }
 
+
+
     public void setChildFounded(int groupPosition,int childPosition){
          foundedChildPositionsArray = foundedPositions.get(groupPosition);
         if(foundedChildPositionsArray==null){
@@ -243,14 +270,8 @@ public class FoodAdapter3 extends BaseExpandableListAdapter {
 
             boolean oldState = foundedChildPositionsArray.get(childPosition);
             foundedChildPositionsArray.put(childPosition,!oldState);
-//            foundedPositions.put(groupPosition,foundedChildPositionsArray);
         }
-        notifyDataSetChanged();
-//        else {
-//
-//            foundedChildPositionsArray=null;
-//            notifyDataSetChanged();
-//        }
+        notifyDataSetChanged(); notifyDataSetInvalidated();
 
     }
 

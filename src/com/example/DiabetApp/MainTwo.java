@@ -6,7 +6,7 @@ import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -33,7 +33,8 @@ public class MainTwo extends Activity implements TextWatcher {
     private  GestureDetector gestureDetectorOfExpListView;
     public static volatile boolean Clicked=false;
     public static Activity activity;
-    private AutoCompleteTextView autoTV;
+    private static AutoCompleteTextView autoTV;
+    private static InputMethodManager inputMethodManager;
 
     private FoodAdapter3 adapter3;
     private GridLayout leftListGridLayout;
@@ -58,16 +59,15 @@ public class MainTwo extends Activity implements TextWatcher {
     private static final int SWEETS_GROUP=4;
     private static final int SWIPE_MIN_DISTANCE = 120;
     private static final int SWIPE_THRESHOLD_VELOCITY = 200;
-    float prevVelocity=0;
 
-    static volatile boolean isSliderOpened =true;
+    static volatile boolean isSliderOpened =false;
     int screeWidth=0;
     int screenHeight=0;
     int expandListWIDTH=0;
     int leftListWIDTH=0;
     int gridWIDTH=0;
     private int xeTVwidth;
-    private final int VUSTYP_WIDTH=40;
+//    private final int VUSTYP_WIDTH=15;
     private TextView XE_TV,result_xe_TV;
 //    private TextView xeTV;
     private  static  TranslateAnimation hide_slider;
@@ -79,7 +79,8 @@ public class MainTwo extends Activity implements TextWatcher {
     private int plateHeight=0;
     private TextView xe_tv_block;
 
-    private LinearLayout header,collapsed_LL,rightPartLL,expanded_LL;
+    private LinearLayout header,collapsed_LL,expanded_LL,ruchka;
+    private RelativeLayout rightPartLL;
     private TranslateAnimation show_slider;
      GestureDetector.SimpleOnGestureListener expListListener;
 
@@ -119,8 +120,9 @@ public class MainTwo extends Activity implements TextWatcher {
 
     }
 
-    private MotionEvent currentMotionEvent;
     public static AlphaAnimation fadeIn,fadeOut;
+    private int ruchkaWIDTH=0;
+
 
 
     @Override
@@ -188,12 +190,12 @@ public class MainTwo extends Activity implements TextWatcher {
                 if (languageIsEng) {
                     b.setText(p.getName());
                     newValue=pvalue*12;
-                    xe_row_tv.setText(newValue+"");
+                    xe_row_tv.setText(convertFloat(newValue)+"");
                 }
                 if (!languageIsEng) {
                     b.setText(p.getAuxName());
                     newValue=pvalue/12;
-                    xe_row_tv.setText(newValue+"");
+                    xe_row_tv.setText(convertFloat(newValue)+"");
                 }
             }
         }
@@ -206,7 +208,7 @@ public class MainTwo extends Activity implements TextWatcher {
         setContentView(R.layout.main);
 
         activity=this;
-
+        inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
@@ -215,97 +217,132 @@ public class MainTwo extends Activity implements TextWatcher {
         screeWidth = metrics.widthPixels;
         screenHeight = metrics.heightPixels;
 
+        ruchkaWIDTH =(int)(15*Resources.getSystem().getDisplayMetrics().density);
         result_xe_TV  =(TextView)findViewById(R.id.result_xeTV);
         expandListWIDTH = (int )(140* Resources.getSystem().getDisplayMetrics().density);   // =210
         leftListWIDTH = screeWidth-expandListWIDTH;
         gridWIDTH=leftListWIDTH;
         xeTVwidth = (int)(33* Resources.getSystem().getDisplayMetrics().density);
+
+        ruchka=(LinearLayout)findViewById(R.id.ruchka);
         leftListView=(ScrollView)findViewById(R.id.myview);
         leftListView.layout(0,0,leftListWIDTH,leftListView.getHeight());
         assetManager=getAssets();
         tagsArray=new ArrayList();
+
+
         expandableListView = (ExpandableListView) findViewById(R.id.expandableListView);
         leftListGridLayout = (GridLayout)findViewById(R.id.grid);
+        leftListGridLayout.layout(0,0,screeWidth-expandListWIDTH,leftListGridLayout.getHeight());
 
         collapsed_LL  = (LinearLayout)getLayoutInflater().inflate(R.layout.left_header_collapsed,null);
-        rightPartLL = (LinearLayout)findViewById(R.id.rightPartLL);
+        rightPartLL = (RelativeLayout)findViewById(R.id.rightPartLL);
         header = (LinearLayout)findViewById(R.id.header);
 
         expanded_LL=(LinearLayout)getLayoutInflater().inflate(R.layout.left_header_expand,null);
         header.addView(expanded_LL);
         plateHeight = (int)(60*Resources.getSystem().getDisplayMetrics().density);
-        expandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
-            @Override
-            public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
-                if(!isSliderOpened){
-                    isSliderOpened =true;
-                    header.removeView(header.getChildAt(0));
-                    header.addView(collapsed_LL);
-                    return true;
-                }
+//        expandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+//            @Override
+//            public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
+////                if(!isSliderOpened){
+////                    isSliderOpened =true;
+////                    header.removeView(header.getChildAt(0));
+////                    header.addView(collapsed_LL);
+//                    new SliderAnimation().execute(rightPartLL,show_slider);
+//                Log.d("==DIABET_APPLICATION ==","open =);");
+////                    isSliderOpened=true;
+//                    return true;
+////                }
+////                isSliderOpened=false;
+////                return false;
+//            }
+//        });
 
-                return false;
-            }
-        });
 
     /**Animation of right list  & left list!!!*/
         expListListener= new GestureDetector.SimpleOnGestureListener(){
 
-            @Override
-            public synchronized boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            int velX=0;
+            int difference=100;
 
-                expandableListView.invalidateViews();
+            @Override
+            public  boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 
                 return false;
             }
 
             @Override
-            public synchronized boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            public   boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                expandableListView.invalidateViews();
+                Thread t1 = new Thread(new executer());
 
+                if(e1.getX()-e2.getX()<0 && Math.abs(e2.getX()-e1.getX())>difference) {
+                    synchronized (rightPartLL) {
+                        synchronized (t1) {
+                            t1.start();
+                        }
+//                        slider1.execute(rightPartLL,hide_slider);
+//                        shortheader.execute(header,expanded_LL);
+//                        rightPartLL.startAnimation(hide_slider);
 
-                if(velocityX>0 ) {
-                    if(isSliderOpened) {
+//                        header.removeView(header.getChildAt(0));
+//                        header.addView(expanded_LL);                   }
 
-                        header.removeView(header.getChildAt(0));
-                        header.addView(expanded_LL);
-                        rightPartLL.startAnimation(hide_slider);
-
-                        Log.d("==DIABET_APPLICATION ==","removed ll_collapsed();");
-                        Toast.makeText(activity,"isSliderOpened= "+isSliderOpened,5000).show();
-//                        isSliderOpened=false;
-                        for(int i=0;i<expandableListView.getCount();i++) expandableListView.collapseGroup(i);
+                        Log.d("==DIABET_APPLICATION ==", "closed!;");
+//                        for (int i = 0; i < expandableListView.getCount(); i++) expandableListView.collapseGroup(i);
                         return true;
                     }
-
                 }
-                if(velocityX<0){
-                    if(!isSliderOpened) {
-                        header.removeView(header.getChildAt(0));
-                        header.addView(collapsed_LL);
+                if(e1.getX()<screeWidth&&e1.getX()>screeWidth-40){ rightPartLL.startAnimation(show_slider); return true;}
+
+                if(e1.getX()-e2.getX()>0 && Math.abs(e1.getX()-e2.getX())>difference){
+                    synchronized (rightPartLL) {
+//                        rightPartLL.startAnimation(show_slider);
+//                        shortheader.execute(header,collapsed_LL);
                         rightPartLL.startAnimation(show_slider);
-
-                        Toast.makeText(activity,"isSliderOpened= "+isSliderOpened,5000).show();
-                        Log.d("==DIABET_APPLICATION ==","removed ll_expanded();");
-
-//                        isSliderOpened=true;
+//                    slider2.execute(rightPartLL,show_slider);
+//                        header.removeView(header.getChildAt(0));
+//                        header.addView(collapsed_LL);
+                        Log.d("==DIABET_APPLICATION ==", "open =);");
                         return true;
                     }
-
                 }
                 return false;
             }
 
             @Override
             public boolean onDown(MotionEvent e) {
-                currentMotionEvent=e;
                 return true;
             }
 
+             class executer implements Runnable{
+                 @Override
+                 public void run() {
+                     rightPartLL.post(new Runnable() {
+                         @Override
+                         public void run() {
+                             synchronized (executer.class) {
+                                 rightPartLL.startAnimation(hide_slider);
+                             }
+                         }
+                     });
+
+                 }
+             }
         };
 
 
         gestureDetectorOfExpListView = new GestureDetector(activity,expListListener);
 
+        TableRow rightPart = (TableRow)findViewById(R.id.rightPart);
+        rightPart.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+
+                return gestureDetectorOfExpListView.onTouchEvent(motionEvent);
+            }
+        });
         final GestureDetector.SimpleOnGestureListener listener = new GestureDetector.SimpleOnGestureListener() {
 
             @Override
@@ -322,7 +359,13 @@ public class MainTwo extends Activity implements TextWatcher {
 
         gestureDetector = new GestureDetector(activity,listener);
 
-
+        final LinearLayout ruchka = (LinearLayout)findViewById(R.id.ruchka);
+        ruchka.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return gestureDetectorOfExpListView.onTouchEvent(motionEvent);
+            }
+        });
         lv=expandableListView;
 
         kkalTV = (TextView)findViewById(R.id.kkalTV);
@@ -349,6 +392,8 @@ public class MainTwo extends Activity implements TextWatcher {
         ArrayList<Product>[]arr=Product.getProducts();
         adapter3=new FoodAdapter3(this,arr,expandableListView);
         expandableListView.setAdapter(adapter3);
+//        FoodAdapter3 adapter3new=new FoodAdapter3(this,arr,lv);
+//        lv.setAdapter(adapter3new);
         clearButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -366,7 +411,8 @@ public class MainTwo extends Activity implements TextWatcher {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
 
-                return (gestureDetectorOfExpListView.onTouchEvent(motionEvent));
+
+                return gestureDetectorOfExpListView.onTouchEvent(motionEvent);
 
             }
         });
@@ -382,11 +428,6 @@ public class MainTwo extends Activity implements TextWatcher {
                     Clicked = false;
                 }
             try{
-                int color_default  = Color.parseColor("#72000000");
-//                view1.setBackgroundColor(color_default);
-
-
-
                 adapter3.setClicked(i, i1);
 
                 final CheckedTextView tv = (CheckedTextView) view1.findViewById(R.id.textItem);
@@ -406,8 +447,9 @@ public class MainTwo extends Activity implements TextWatcher {
                     XE_TV = (TextView) rowItem.findViewById(R.id.XeRowTV);
                     final TextView callories_LeftListTV = (TextView) rowItem.findViewById(R.id.calloriesRowHiddenTV);
 
-                    XE_TV.setText(XE_CARB_VARIABLE + "");
 
+                    /**here we convert float number if it does not contain decimals*/
+                    XE_TV.setText(convertFloat(XE_CARB_VARIABLE)  +"");
                     gramTV.setText(product.getAmount() + "");
 
 
@@ -470,17 +512,19 @@ public class MainTwo extends Activity implements TextWatcher {
                                 final TextView xeTVresult = (TextView) blockLayout.findViewById(R.id.xeTV_result);
                                 final EditText editAmount = (EditText) blockLayout.findViewById(R.id.amountEditText);
 
-                                xeTVresult.setText(XE_CARB_VARIABLE + "");
-//                                XE_CARB_VARIABLE = Float.parseFloat(XE_TV.getText().toString());
+                                if(XE_CARB_VARIABLE%10==0){
+
+                                    if(XE_CARB_VARIABLE==12.0) xeTVresult.setText(12+"");
+                                    else if(XE_CARB_VARIABLE==1.0)xeTVresult.setText(1+"");
+                                }
+
 
                                 TableLayout display = (TableLayout) blockLayout.findViewById(R.id.display);
                                 /**Происходит пересчет во вьюхах   blockLayout(display)   ХЕ и калорий*/
                                 display.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view1) {
-
                                         int calloriesOfOneXE = Integer.parseInt(callories_CONSTANT);
-
                                         calculateXEandCalloriesInBlockLayout(editAmount, xeTVresult, caloriesTV, productAmount, calloriesOfOneXE);
                                     }
                                 });
@@ -495,11 +539,8 @@ public class MainTwo extends Activity implements TextWatcher {
 
                                         String nAmount = editAmount.getText().toString();
                                         if (p.matcher(nAmount).matches()) {
-
                                             setDataInLeftListView(itemText, nAmount, productAmount, callories_CONSTANT, editAmount, xeTVresult);
-
                                             isSliderOpened = true;
-
                                         }
                                     }
                                 });
@@ -602,9 +643,10 @@ public class MainTwo extends Activity implements TextWatcher {
                 }
             }
 
-            private void removeRowFromLeftListView(View view) {
+            private synchronized void removeRowFromLeftListView(View view) {
                 a =new TranslateAnimation(view.getX(),-300,view.getY(),view.getY()) ;
                 a.setDuration(250);a.setFillAfter(true);
+                view.startAnimation(a);
             }
 
         });
@@ -632,14 +674,11 @@ public class MainTwo extends Activity implements TextWatcher {
                                if(nameProduct.equals(name)){
                                    int childIndex = i;
                                    adapter3.setChildFounded(groupIndex, childIndex);
-                                   Toast.makeText(activity,"group: "+groupIndex+"child: "+childIndex,5000).show();
-//                                   return;
-//                                   break;
+//                                   Toast.makeText(activity,"group: "+groupIndex+"child: "+childIndex,5000).show();
+//                                   InputMethodManager im = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+//                                   im.hideSoftInputFromWindow(autoTV.getWindowToken(), 0);
                                }
                            }
-
-//
-
                        }
                     }
                 }
@@ -649,7 +688,7 @@ public class MainTwo extends Activity implements TextWatcher {
         });
 
     }
-
+    @SuppressWarnings("unchecked")
     @Override
     public void onBackPressed() {
         if(blockLayout==null) {
@@ -691,7 +730,7 @@ public class MainTwo extends Activity implements TextWatcher {
         TextView kall_TV = (TextView) view.findViewById(R.id.calloriesRowHiddenTV);
 
         gramTV.setText(changedWeight);
-        XE_TV.setText(res + "");
+        XE_TV.setText(convertFloat(res) + "");
 
         kall_TV.setText(resultCall+"");
         calculateResult(leftListGridLayout);
@@ -760,18 +799,15 @@ public class MainTwo extends Activity implements TextWatcher {
         float res=0;
         int res2=0;
        for(int i=0;i<e.getRowCount();i++){
-           if(!(e.getChildAt(i) instanceof ScrollView)) {
-               LinearLayout l = (LinearLayout) e.getChildAt(i);
-               TextView tv = (TextView) l.findViewById(R.id.XeRowTV);
-               res += Float.parseFloat(tv.getText().toString());
-               TextView calltv = (TextView) l.findViewById(R.id.calloriesRowHiddenTV);
-               res2 += Integer.parseInt(calltv.getText().toString());
-           }
+           LinearLayout l = (LinearLayout) e.getChildAt(i);
+           TextView tv = (TextView) l.findViewById(R.id.XeRowTV);
+           res += Float.parseFloat(tv.getText().toString());
+           TextView calltv = (TextView) l.findViewById(R.id.calloriesRowHiddenTV);
+           res2 += Integer.parseInt(calltv.getText().toString());
        }
         finalResult.setText(res+"");
         kkalTV.setText(res2+"");
     }
-
 
 
 
@@ -800,73 +836,53 @@ public class MainTwo extends Activity implements TextWatcher {
         screeWidth = metrics.widthPixels;
         screenHeight = metrics.heightPixels;
         if(hasFocus){
-            isSliderOpened =false;
-            TranslateAnimation t1 = new TranslateAnimation(activity,null);
-            t1.setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-                }
-
-                @Override
-                public void onAnimationEnd(Animation animation) {
-                    rightPartLL.layout(480 - 40, 0, 480 - 40 + expandListWIDTH, rightPartLL.getHeight());
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {
-                }
-            });
-            rightPartLL.startAnimation(t1);
-            rightPartLL.invalidate();
+//            mainlayout.layout(screeWidth-expandListWIDTH,0,screeWidth,mainlayout.getHeight()+10);
         }
     }
 
     void initAnimations(){
 
 
-        fadeOut = new AlphaAnimation(1, 0);
-        fadeOut.setStartOffset(1000);
-        fadeOut.setDuration(1000);
-
         hide_slider =new TranslateAnimation(activity,null) ;
         hide_slider.setAnimationListener(new Animation.AnimationListener() {
 
             @Override
             public void onAnimationStart(Animation animation) {
-//                isSliderOpened=true;
+//                ruchka.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                isSliderOpened=false;
-                rightPartLL.layout(screeWidth - VUSTYP_WIDTH, 0, screeWidth - VUSTYP_WIDTH + expandListWIDTH, rightPartLL.getHeight());
-                leftListView.layout(0, 0, screeWidth - VUSTYP_WIDTH, leftListView.getHeight());
-                leftListGridLayout.layout(0, 0, screeWidth - VUSTYP_WIDTH, leftListGridLayout.getHeight());
+//                ruchka.setVisibility(View.VISIBLE);
+                int ruchkaWidth= ruchkaWIDTH;
+                ruchka.layout(screeWidth-ruchkaWidth,0,ruchkaWidth,(int)ruchka.getY());
+                rightPartLL.layout(screeWidth-ruchkaWidth , 0, screeWidth + expandListWIDTH-ruchkaWidth, rightPartLL.getHeight());
+                leftListView.layout(0, 0, screeWidth , leftListView.getHeight());
+                leftListGridLayout.layout(0, 0, screeWidth , leftListGridLayout.getHeight());
 
                 int height = plateHeight;
                 int res = plateHeight;
                 for (int i = 0; i < leftListGridLayout.getRowCount(); i++) {
-                    if(!(leftListGridLayout.getChildAt(i) instanceof ScrollView)) {
-                        LinearLayout v = (LinearLayout) leftListGridLayout.getChildAt(i);
-                        v.layout(0, (int) v.getY(), 425, res);
-                        res += height;
 
-                        final TextView xe_tv = (TextView) v.findViewById(R.id.XeRowTV);
-                        xe_tv.layout(350, (int) xe_tv.getY(), 410, xe_tv.getHeight() + 18);
+                    LinearLayout v = (LinearLayout) leftListGridLayout.getChildAt(i);
+                    v.layout(0, (int) v.getY(), screeWidth, res);
+                    res += height;
 
-                        TextView callTV = (TextView) v.findViewById(R.id.calloriesRowHiddenTV);
-                        callTV.layout(280, (int) callTV.getY(), 350, callTV.getHeight() + 16);
-                        callTV.setVisibility(View.VISIBLE);
-                    }
+                    final TextView xe_tv = (TextView) v.findViewById(R.id.XeRowTV);
+                    xe_tv.layout(350, (int) xe_tv.getY(), 410, xe_tv.getHeight() + 18);
+
+                    TextView callTV = (TextView) v.findViewById(R.id.calloriesRowHiddenTV);
+                    callTV.layout(280, (int) callTV.getY(), 350, callTV.getHeight() + 16);
+                    callTV.setVisibility(View.VISIBLE);
+
 
                 }
-
                 leftListGridLayout.invalidate();
                 animation.setFillAfter(true);
-                rightPartLL.invalidate();
 
-                Log.d("==DIABET_APPLICATION ==","hideSlider();");
-
+//                RelativeLayout.LayoutParams prms =(RelativeLayout.LayoutParams) ruchka.getLayoutParams();
+//                prms.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+//                ruchka.setLayoutParams(prms);
             }
 
             @Override
@@ -879,38 +895,81 @@ public class MainTwo extends Activity implements TextWatcher {
         show_slider.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
-//                isSliderOpened=false;
+//                ruchka.setVisibility(View.GONE);
             }
 
+            @SuppressWarnings("Unchecked")
             @Override
             public void onAnimationEnd(Animation animation) {
-                isSliderOpened=true;
-                rightPartLL.layout(screeWidth - expandListWIDTH, 0, screeWidth, rightPartLL.getHeight());
-                leftListView.layout(0, 0, leftListWIDTH, leftListView.getHeight());
-                leftListGridLayout.layout(0, 0, gridWIDTH, leftListGridLayout.getHeight());
-
+                int ruchkaWidth=1;
+                ruchka.layout(screeWidth - expandListWIDTH,0,ruchkaWidth,(int)ruchka.getY());
+                rightPartLL.layout(screeWidth - expandListWIDTH-ruchkaWidth, 0, screeWidth, rightPartLL.getHeight());
+                leftListView.layout(0, 0, screeWidth-expandListWIDTH+ruchkaWidth, leftListView.getHeight());
+                leftListGridLayout.layout(0, 0, screeWidth-expandListWIDTH+ruchkaWidth, leftListGridLayout.getHeight());
+                int rowWidth = screeWidth-expandListWIDTH;
                 int height = plateHeight;
                 int res = plateHeight;
                 for (int i = 0; i < leftListGridLayout.getRowCount(); i++) {
                     if(!(leftListGridLayout.getChildAt(i) instanceof ScrollView)) {
                         LinearLayout v1 = (LinearLayout) leftListGridLayout.getChildAt(i);
-                        v1.layout((int) v1.getX(), (int) v1.getY(), 267, res);
+                        v1.layout((int) v1.getX(), (int) v1.getY(), rowWidth, res);
                         res += height;
                         TextView callTV = (TextView) v1.findViewById(R.id.calloriesRowHiddenTV);
                         callTV.setVisibility(View.INVISIBLE);
                     }
                 }
-                expListListener.onDown(currentMotionEvent);
+                leftListGridLayout.invalidate();
                 animation.setFillAfter(true);
-                rightPartLL.invalidate();
 
-                Log.d("==DIABET_APPLICATION ==","showSlider();");
+
             }
 
             @Override
             public void onAnimationRepeat(Animation animation) {
-
             }
         });
+    }
+    static class AddingShortLayout extends AsyncTask<LinearLayout,Void,LinearLayout[]>{
+
+        @Override
+        protected LinearLayout[] doInBackground(LinearLayout[] objects) {
+
+            return objects;
+        }
+
+        @Override
+        protected void onPostExecute(LinearLayout[] objects) {
+            LinearLayout header =  objects[0];
+            LinearLayout collapsedLL = objects[1];
+            header.removeView(header.getChildAt(0));
+            header.addView(collapsedLL);
+        }
+    }
+
+    static class SliderAnimation extends AsyncTask<Object,Object,Object[]>{
+
+        @Override
+        protected Object[] doInBackground(Object... objects) {
+            return objects;
+        }
+
+        @Override
+        protected void onProgressUpdate(Object... objects) {
+            RelativeLayout slider =(RelativeLayout)objects[0];
+            TranslateAnimation anim  = (TranslateAnimation)objects[1];
+            slider.startAnimation(anim);
+        }
+    }
+
+    public static Number convertFloat(float num){
+        if((num-(int)num)==0){
+            return (int)num;
+        }
+        else{
+            return num;
+        }
+    }
+    public synchronized static void hideKeyboard(){
+        inputMethodManager.hideSoftInputFromWindow(autoTV.getWindowToken(), 0);
     }
 }
