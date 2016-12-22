@@ -47,7 +47,7 @@ public class MainTwo extends Activity implements TextWatcher {
     public Pattern p = Pattern.compile("^[0-9]{1,6}$");
     private AssetManager assetManager ;
     private static Animation a;
-    private String [] groups = new String[]{"milk","drinks","bakery","sweets"};
+    private String [] groups = new String[]{"milk","drinks","bakery","sweets","vegetables"};
     public static volatile boolean languageIsEng=true;
     Product product1_choosen;
 
@@ -57,6 +57,7 @@ public class MainTwo extends Activity implements TextWatcher {
     private static final int BAKERY_GROUP=2;
     private static final int DRINKS_GROUP=3;
     private static final int SWEETS_GROUP=4;
+    private static final int VEGGIES_GROUP=5;
     private static final int SWIPE_MIN_DISTANCE = 120;
     private static final int SWIPE_THRESHOLD_VELOCITY = 200;
 
@@ -113,6 +114,13 @@ public class MainTwo extends Activity implements TextWatcher {
         new Product(SWEETS_GROUP,"sugar","сахар",10,38);
         new Product(SWEETS_GROUP,"chocolate","шоколад",20,110);
         new Product(SWEETS_GROUP,"honey","мёд",12,37);
+
+        new Product(VEGGIES_GROUP,"potato(raw/boiled)","картофель(сырой/вареный)",75,52);
+        new Product(VEGGIES_GROUP,"carrot","морковь",200,82);
+        new Product(VEGGIES_GROUP,"beetroot","свёкла",150,65);
+        new Product(VEGGIES_GROUP,"pea","горох",100,81);
+        new Product(VEGGIES_GROUP,"beans","фасоль",50,51);
+        new Product(VEGGIES_GROUP,"tomato","томат",300,54);
 
         HashMap<String,Integer> names = Product.getNames();
         allnames=new String[names.size()];
@@ -268,7 +276,7 @@ public class MainTwo extends Activity implements TextWatcher {
 
             @Override
             public  boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-
+                expandableListView.invalidateViews();
                 return false;
             }
 
@@ -576,38 +584,56 @@ public class MainTwo extends Activity implements TextWatcher {
 
                     rowItem.setOnTouchListener(new View.OnTouchListener() {
                         @Override
-                        public boolean onTouch(final View view, MotionEvent motionEvent) {
-
+                        public boolean onTouch(View view, MotionEvent motionEvent) {
                             if (gestureDetector.onTouchEvent(motionEvent)) {
-
+                                    final View finalView=view;
+//                                    Thread t1  = new Thread(){
+//                                        @Override
+//                                        public void run() {
+//                                            finalView.post(new Runnable() {
+//                                                @Override
+//                                                public void run() {
+//                                                    synchronized (finalView){
+//                                                        animateRowToLeft(finalView);
+//                                                    }
+//
+//                                                }
+//                                            });
+//                                        }
+//                                    };
+//                                    t1.start();
+//                                    try {
+//                                        t1.join();
+//                                    } catch (InterruptedException e) {
+//                                        e.printStackTrace();
+//                                    }
+                                animateRowToLeft(view);
                                 Button b = (Button) view.findViewById(R.id.button);
+                                    for (int k = 0; k < expandableListView.getChildCount(); k++) {
 
-                                for (int k = 0; k < expandableListView.getChildCount(); k++) {
+                                        LinearLayout itemView = getViewfromExpandableList(expandableListView, k);
 
-                                    LinearLayout v = (LinearLayout) expandableListView.getChildAt(k);
-                                    CheckedTextView tv1 = (CheckedTextView) v.findViewById(R.id.textItem);
+                                        CheckedTextView tv1 = (CheckedTextView) itemView.findViewById(R.id.textItem);
+                                        if (tv1 == null) {
+                                            tv1 = new CheckedTextView(activity);
+                                            tv1.setText(b.getText());
+                                            tv1.setChecked(true);
+                                            tv1.setEnabled(false);
+                                            String buttontext = b.getText().toString();
+                                            String tvtext = tv1.getText().toString();
 
-                                    if (tv1 == null) {
-                                        tv1 = new CheckedTextView(activity);
-                                        tv1.setText(b.getText());
-                                        tv1.setChecked(true);
-                                        tv1.setEnabled(false);
-                                        String buttontext = b.getText().toString();
-                                        String tvtext = tv1.getText().toString();
-
-                                        if (buttontext.equals(tvtext)) {
-                                            adapter3.setClicked(i, i1);
-                                            leftListGridLayout.removeView(view);
-                                            calculateResult(leftListGridLayout);
-                                            return true;
+                                            if (buttontext.equals(tvtext)) {
+                                                adapter3.setClicked(i, i1);
+                                                leftListGridLayout.removeView(view);
+                                                calculateResult(leftListGridLayout);
+                                                return true;
+                                            }
                                         }
                                     }
-                                }
-                                removeRowFromLeftListView(view);
 
                                 return true;
-
                             }
+
                             return false;
                         }
 
@@ -643,10 +669,11 @@ public class MainTwo extends Activity implements TextWatcher {
                 }
             }
 
-            private synchronized void removeRowFromLeftListView(View view) {
+            private synchronized void animateRowToLeft(View view) {
                 a =new TranslateAnimation(view.getX(),-300,view.getY(),view.getY()) ;
-                a.setDuration(250);a.setFillAfter(true);
+                a.setDuration(400);a.setFillAfter(true);
                 view.startAnimation(a);
+
             }
 
         });
@@ -971,5 +998,11 @@ public class MainTwo extends Activity implements TextWatcher {
     }
     public synchronized static void hideKeyboard(){
         inputMethodManager.hideSoftInputFromWindow(autoTV.getWindowToken(), 0);
+    }
+
+
+    public static LinearLayout getViewfromExpandableList(ExpandableListView expandableListView1,int indexOfView){
+        LinearLayout v = (LinearLayout) expandableListView1.getChildAt(indexOfView);
+        return v;
     }
 }
