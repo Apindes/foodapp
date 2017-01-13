@@ -2,7 +2,6 @@ package com.example.DiabetApp;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Parcel;
 import android.util.Log;
 import com.example.DiabetApp.DB.FoodAdapter4;
 
@@ -24,37 +23,25 @@ public class Product {
     private String picURL;
     private String groupName;
     private String auxName;
-    private int groupIndex;
+    private String groupIndex;
     private static volatile ArrayList<ArrayList<Product>> total_list = new ArrayList<>();
     public static ArrayList<Product> list = new ArrayList<>();
-    private static ArrayList<Integer> intlist = new ArrayList<>();
+    private static ArrayList<String> Stringlist = new ArrayList<>();
     public static Container container;
-
-
-    private final int MILK_GROUP = 1;
-    private final int BAKERY_GROUP = 2;
-    private final int DRINKS_GROUP = 3;
-    private final int SWEETS_GROUP = 4;
-    private final int VEGGIES_GROUP = 5;
-    private final int FRUITS_GROUP = 6;
-    private final int MEAT_GROUP = 7;
-    public  final static int BASE_GROUPS_SIZE=6;
-
-    private static final int ADDITIONAL_GROUP = 8;
+    private static final String ADDITIONAL_GROUP = "additional";
 
     private static HashMap<String, Integer> namesMap = new HashMap<>();
     private static ArrayList<String> groupsList = new ArrayList<>();
-    private static HashMap<String, Integer> groupsMap = new HashMap<>();
+    private static HashMap<String, String> groupsMap = new HashMap<>();
 
-    //This constructor add this product to the additional list and to the MYSQL database as well!
-    public Product(int group, String name, String auxName, int amount, int callories, String url) {
-        this(group, name, auxName, amount, callories);
+    //This constructor add  product ONLY to the additional list and to the MYSQL database as well!
+    public Product(String group, String name, String auxName, int amount, int callories, String url) {
         this.picURL = url;
-        if (!intlist.contains(group)) {
-            intlist.add(group);
+        if (!Stringlist.contains(group)) {
+            Stringlist.add(group);
             list = new ArrayList<>();
         }
-        Product additionalProduct = new Product(name, auxName, amount, callories, "additional", group);
+        Product additionalProduct = new Product(name, auxName, amount, callories, group);
         list.add(additionalProduct);
         if(MainTwo.databaseDoesntContain(name)) {
 
@@ -77,68 +64,36 @@ public class Product {
     public Product() {
     }
 
-    public Product(String name, String auxName, int amount, int callories, String groupName, int groupInt) {
+    //this constructor helps to initialize variables!
+    public Product(String name, String auxName, int amount, int callories, String groupName) {
         this.name = name;
         this.amount = amount;
         this.callories = callories;
         this.groupName = groupName;
         this.auxName = auxName;
-        this.groupIndex = groupInt;
 
         if (!groupsList.contains(groupName)) {
             groupsList.add(groupName);
         }
         if (!groupsMap.containsKey(groupName)) {
-            groupsMap.put(groupName, groupIndex);
+            groupsMap.put(groupName, groupName);
         }
 
     }
+    //This constructor add new products in  a static way.
+    public Product(String group, String name, String auxName, int amount, int callories) {
 
-    public Product(int group, String name, String auxName, int amount, int callories) {
 
-
-        if (!intlist.contains(group)) {
-            intlist.add(group);
+        if (!Stringlist.contains(group)) {
+            Stringlist.add(group);
             list = new ArrayList<>();
         }
 
+        Product firstProduct = new Product(name, auxName, amount, callories, group);
+        if(!list.contains(firstProduct))
+           list.add(firstProduct);
+        Log.d(MainTwo.LOG_TAG,"added product!");
 
-
-        switch (group) {
-            case MILK_GROUP:
-                Product firstProduct = new Product(name, auxName, amount, callories, "dairy products", group);
-                list.add(firstProduct);
-                break;
-            case BAKERY_GROUP:
-                Product secProduct = new Product(name, auxName, amount, callories, "bakery", group);
-                list.add(secProduct);
-                break;
-            case DRINKS_GROUP:
-                Product thirdProduct = new Product(name, auxName, amount, callories, "drinks", group);
-                list.add(thirdProduct);
-                break;
-            case SWEETS_GROUP:
-                Product fourthProduct = new Product(name, auxName, amount, callories, "sweets", group);
-                list.add(fourthProduct);
-                break;
-            case VEGGIES_GROUP:
-                Product fifthProduct = new Product(name, auxName, amount, callories, "vegetables", group);
-                list.add(fifthProduct);
-                break;
-//            case ADDITIONAL_GROUP:
-//                Product sixthProduct = new Product(name, auxName, amount, callories, "additional", group);
-//                list.add(sixthProduct);
-//                break;
-
-            case FRUITS_GROUP:
-                Product eightProduct = new Product(name, auxName, amount, callories, "fruits", group);
-                list.add(eightProduct);
-                break;
-            case MEAT_GROUP:
-                Product meatProduct = new Product(name, auxName, amount, callories, "meat", group);
-                list.add(meatProduct);
-                break;
-        }
 
         if (!total_list.contains(list)) {
             total_list.add(list);
@@ -147,19 +102,6 @@ public class Product {
 
     }
 
-    public Product(Parcel parcel) {
-
-        total_list = parcel.readArrayList(Product.class.getClassLoader());
-
-    }
-
-
-    private boolean groupsContains(int group) {
-        if (groupsMap.values().contains(group))
-            return true;
-
-        return false;
-    }
 
     public String getPicURL() {
         return picURL;
@@ -186,7 +128,7 @@ public class Product {
 
         myListComparator comparator = new myListComparator();
         int i = 0;
-        while (i < total_list.size() && i != 6) {
+        while (i < total_list.size() && i != 7) {
 
             Collections.sort(total_list.get(i), comparator);
             i++;

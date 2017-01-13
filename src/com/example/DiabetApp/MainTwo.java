@@ -44,7 +44,7 @@ import java.util.regex.Pattern;
 
 public class MainTwo extends Activity implements TextWatcher {
 
-    private static String LOG_TAG = "==DIABET_APPLICATION ==" ;
+    public static String LOG_TAG = "==DIABET_APPLICATION ==" ;
     public ArrayList tagsArray;
     private  GestureDetector gestureDetector;
     private  GestureDetector gestureDetectorOfExpListView;
@@ -69,14 +69,14 @@ public class MainTwo extends Activity implements TextWatcher {
     private static Handler handler;
     private Bitmap bitmap=null;
 
-    private static final int MILK_GROUP=1;
-    private static final int BAKERY_GROUP=2;
-    private static final int DRINKS_GROUP=3;
-    private static final int SWEETS_GROUP=4;
-    private static final int VEGGIES_GROUP=5;
-    private static final int FRUITS_GROUP=6;
-    private static final int MEAT_GROUP=7;
-    private static final int ADDITIONAL_GROUP=8;
+//    private static final int MILK_GROUP=1;
+//    private static final int BAKERY_GROUP=2;
+//    private static final int DRINKS_GROUP=3;
+//    private static final int SWEETS_GROUP=4;
+//    private static final int VEGGIES_GROUP=5;
+//    private static final int FRUITS_GROUP=6;
+//    private static final int MEAT_GROUP=7;
+//    private static final int ADDITIONAL_GROUP=8;
     private static final int SWIPE_MIN_DISTANCE = 120;
     private static final int SWIPE_THRESHOLD_VELOCITY = 200;
     private static final int ADD =1;
@@ -114,7 +114,16 @@ public class MainTwo extends Activity implements TextWatcher {
     static Product.Container adapterHolder;
     public static DBHelper dbHelper;
 
+    private static final String MILK_GROUP = "dairy products";
+    private static final String BAKERY_GROUP = "bakery";
+    private static final String DRINKS_GROUP = "drinks";
+    private static final String SWEETS_GROUP = "sweets";
+    private static final String VEGGIES_GROUP = "vegetables";
+    private static final String FRUITS_GROUP = "fruits";
+    private static final String MEAT_GROUP = "meat";
+    public  final static int BASE_GROUPS_SIZE=6;
 
+    private static final String ADDITIONAL_GROUP = "additional";
 
 
     static {
@@ -1440,18 +1449,21 @@ public class MainTwo extends Activity implements TextWatcher {
                 int callInd = c.getColumnIndex("callories");
 //                int urlInd = c.getColumnIndex("url");
 
-                do{
+
                     String name = c.getString(nameInd);
                     String auxname = c.getString(auxNameInd);
                     int amount = c.getInt(amountInd);
                     int callories = c.getInt(callInd);
 //                    String url = c.getString(urlInd);
-                    if(databaseDoesntContain(name)) {
-                        Product.addProductInNewGroup(name,auxname,amount,callories,null);
-                    }else {
-                        break;
+                    while (c.moveToNext()) {
+
+                        if(!additionalListContains(name)) {
+                            Product.addProductInNewGroup(name, auxname, amount, callories, null);
+                            Log.d(LOG_TAG,"added product from db!");
+                            break;
+                        }
                     }
-                }while (c.moveToNext());
+
             }
             c.close();
         }else {
@@ -1471,6 +1483,20 @@ public class MainTwo extends Activity implements TextWatcher {
         }
         c.close();
         return true;
+    }
+    public static boolean additionalListContains(String name){
+        ArrayList<ArrayList<Product>> list = Product.getProducts();
+        ArrayList<Product> l = list.get(list.size()-1);
+        if(l.get(0).getGroupName().equals("additional")){
+            for(Product p: l){
+                if(p.getName().equals(name)){
+                    return true;
+                }else {
+                    return false;
+                }
+            }
+        }
+        return false;
     }
 
     @Override
